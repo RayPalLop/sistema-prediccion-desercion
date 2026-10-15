@@ -1,0 +1,103 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">Directorio Estudiantil</h2>
+            <p class="text-muted">Gestión y visualización de la base de datos universitaria.</p>
+        </div>
+        <div>
+            <a href="{% url 'nuevo_estudiante' %}" class="btn btn-primary"><i class="fas fa-plus me-2"></i> Nuevo Estudiante</a>
+            <a href="{% url 'exportar_estudiantes' %}" class="btn btn-success"><i class="fas fa-file-excel me-2"></i> Exportar</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-secondary">Total Registrados: {{ total_estudiantes }}</h6>
+            
+            <form method="GET" action="{% url 'estudiantes' %}" class="input-group" style="width: 300px;">
+                <input type="text" name="q" class="form-control" placeholder="Buscar estudiante..." value="{{ query }}">
+                <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
+                {% if query %}
+                    <a href="{% url 'estudiantes' %}" class="btn btn-outline-danger" title="Limpiar búsqueda"><i class="fas fa-times"></i></a>
+                {% endif %}
+            </form>
+        </div>
+        
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="px-4">#</th>
+                            <th>Nombres y Apellidos</th>
+                            
+                            <th>Carrera</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for estudiante in estudiantes %}
+                        <tr>
+                            <td class="px-4 fw-bold text-muted">{{ estudiantes.start_index|add:forloop.counter0 }}</td>
+                            <td>
+                                <strong>{{ estudiante.persona.primer_nombre }} {{ estudiante.persona.primer_apellido }}</strong>
+                            </td>
+                            
+                            <td>{{ estudiante.carrera.nombre }}</td>
+                            <td>
+                                <span class="badge bg-success rounded-pill">Activo</span>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-info" title="Ver Perfil">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="fas fa-folder-open fa-3x mb-3 text-light"></i><br>
+                                No hay estudiantes registrados con ese criterio de búsqueda.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="card-footer bg-white py-3">
+            <nav aria-label="Navegación de páginas">
+                <ul class="pagination justify-content-end mb-0">
+                    {% if estudiantes.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ estudiantes.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Anterior</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <a class="page-link" href="#">Página {{ estudiantes.number }} de {{ estudiantes.paginator.num_pages }}</a>
+                    </li>
+
+                    {% if estudiantes.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ estudiantes.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Siguiente</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><a class="page-link" href="#">Siguiente</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}

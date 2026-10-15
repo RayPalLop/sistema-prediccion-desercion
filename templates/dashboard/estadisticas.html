@@ -1,0 +1,139 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">Métricas y Análisis</h2>
+            <p class="text-muted">Reportes de inteligencia de negocios (BI) basados en datos del sistema.</p>
+        </div>
+        <button class="btn btn-outline-secondary" onclick="window.print()">
+            <i class="fas fa-print me-2"></i> Imprimir Reporte
+        </button>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 bg-white">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-primary text-white rounded p-3 me-3">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Total Estudiantes Auditados</h6>
+                        <h3 class="mb-0 fw-bold">{{ total_estudiantes }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 bg-white">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-danger text-white rounded p-3 me-3">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Total Alertas Generadas (Llama 3.3)</h6>
+                        <h3 class="mb-0 fw-bold">{{ total_alertas }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3">
+                    <h6 class="m-0 font-weight-bold text-secondary">Volumen de Riesgo Académico</h6>
+                </div>
+                <div class="card-body">
+                    <div style="position: relative; height: 350px; width: 100%;">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3">
+                    <h6 class="m-0 font-weight-bold text-secondary">Proporción de Intervención</h6>
+                </div>
+                <div class="card-body d-flex justify-content-center align-items-center">
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="polarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Variables inyectadas desde el backend
+        const dataAlto = {{ riesgo_alto }};
+        const dataMedio = {{ riesgo_medio }};
+        const dataBajo = {{ riesgo_bajo }};
+        
+        // Configuración común de colores
+        const bgColors = [
+            'rgba(220, 53, 69, 0.8)',  // Danger (Alto)
+            'rgba(255, 193, 7, 0.8)',  // Warning (Medio)
+            'rgba(25, 135, 84, 0.8)'   // Success (Bajo)
+        ];
+        const borderColors = ['#dc3545', '#ffc107', '#198754'];
+
+        // 1. Instanciar Gráfico de Barras
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: ['Riesgo Alto', 'Riesgo Medio', 'Riesgo Bajo'],
+                datasets: [{
+                    label: 'Cantidad de Estudiantes',
+                    data: [dataAlto, dataMedio, dataBajo],
+                    backgroundColor: bgColors,
+                    borderColor: borderColors,
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // 2. Instanciar Gráfico Polar Area
+        const ctxPolar = document.getElementById('polarChart').getContext('2d');
+        new Chart(ctxPolar, {
+            type: 'polarArea',
+            data: {
+                labels: ['Alto', 'Medio', 'Bajo'],
+                datasets: [{
+                    data: [dataAlto, dataMedio, dataBajo],
+                    backgroundColor: bgColors,
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+{% load custom_filters %}
+
+<div class="container-fluid mt-4">
+    <h2 class="mb-4">Predicción de Deserción Académica</h2>
+    
+    <div class="row mb-4 text-center">
+        <div class="col-md-3">
+            <div class="card bg-light shadow-sm">
+                <div class="card-body"><h5>Analizados</h5><h3>{{ total }}</h3></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white shadow-sm">
+                <div class="card-body"><h5>Riesgo Alto</h5><h3>{{ alto }}</h3></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark shadow-sm">
+                <div class="card-body"><h5>Riesgo Medio</h5><h3>{{ medio }}</h3></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow-sm">
+                <div class="card-body"><h5>Riesgo Bajo</h5><h3>{{ bajo }}</h3></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Reporte de Alertas Generadas</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Estudiante</th>
+                                <th>Riesgo</th>
+                                <th>Análisis y Recomendación IA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alerta in alertas %}
+                            <tr>
+                                <td><strong>{{ alerta.estudiante.persona.primer_nombre }} {{ alerta.estudiante.persona.primer_apellido }}</strong></td>
+                                <td>
+                                    <span class="badge rounded-pill 
+                                        {% if alerta.nivel_riesgo == 'Alto' %}bg-danger
+                                        {% elif alerta.nivel_riesgo == 'Medio' %}bg-warning text-dark
+                                        {% else %}bg-success{% endif %}">
+                                        {{ alerta.nivel_riesgo }}
+                                    </span>
+                                </td>
+                                <td class="small">{{ alerta.causa_ia|render_markdown_bold|linebreaksbr }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Distribución Global de Riesgo (Llama 3.3)</h5>
+                </div>
+                <div class="card-body d-flex justify-content-center align-items-center" style="position: relative; height: 300px;">
+                    <canvas id="graficoRiesgo"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('graficoRiesgo');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Alto', 'Medio', 'Bajo'],
+                datasets: [{
+                    data: [{{ alto }}, {{ medio }}, {{ bajo }}],
+                    backgroundColor: ['#dc3545', '#ffc107', '#198754']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    });
+</script>
+{% endblock %}

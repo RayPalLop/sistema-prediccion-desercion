@@ -1,0 +1,101 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="mb-4">
+        <h2 class="mb-0">Configuración del Sistema</h2>
+        <p class="text-muted">Gestión de parámetros, motor de inferencia y cuenta de usuario.</p>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="m-0 font-weight-bold text-secondary"><i class="fas fa-user-shield me-2"></i>Perfil de Administrador</h6>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Nombre de Usuario</label>
+                            <input type="text" class="form-control" value="{{ usuario.username }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Correo Electrónico</label>
+                            <input type="email" class="form-control" value="{{ usuario.email|default:'No registrado' }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Rol en el Sistema</label>
+                            <input type="text" class="form-control" value="{% if usuario.is_superuser %}Superadministrador{% else %}Usuario Estándar{% endif %}" readonly>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm"><i class="fas fa-key me-2"></i>Cambiar Contraseña</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h6 class="m-0 font-weight-bold text-secondary"><i class="fas fa-sliders-h me-2"></i>Preferencias de Interfaz</h6>
+                </div>
+                <div class="card-body">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="modoOscuro">
+                        <label class="form-check-label" for="modoOscuro">Activar Modo Oscuro (Próximamente)</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="notificaciones" checked>
+                        <label class="form-check-label" for="notificaciones">Recibir alertas críticas por correo</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0 mb-4 border-start border-primary border-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-brain me-2"></i>Motor de Inferencia (Llama 3.3)</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            Estado del Proveedor API (Groq)
+                            <span class="badge bg-success rounded-pill">Conectado</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            Modelo Base
+                            <span class="text-muted small">llama3-70b-8192</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            Temperatura de Inferencia
+                            <span class="text-muted small">0.2 (Alta Precisión)</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="alert alert-info py-2 small" role="alert">
+                        <i class="fas fa-info-circle me-2"></i> La clave de API se administra de forma segura a través de las variables de entorno (.env).
+                    </div>
+
+                    <div class="d-grid">
+                        <button class="btn btn-primary" type="button">
+                            <i class="fas fa-sync-alt me-2"></i> Ejecutar Diagnóstico Manual
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h6 class="m-0 font-weight-bold text-secondary"><i class="fas fa-database me-2"></i>Conexión PostgreSQL</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="spinner-grow text-success spinner-grow-sm me-2" role="status"></div>
+                        <span class="fw-bold text-success">Operativo</span>
+                    </div>
+                    <p class="text-muted small mb-0">Host: 127.0.0.1 | Puerto: 5432</p>
+                    <p class="text-muted small">Instancia: Base de datos institucional</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

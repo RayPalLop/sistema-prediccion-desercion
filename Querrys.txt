@@ -1,0 +1,88 @@
+--------------------------------------------------------------------------------------------------------
+--Este query demuestra el JOIN de las tres tablas. Es el que prueba que tu sistema une correctamente 
+--la Persona con su historial académico y su análisis de IA.
+
+---------------------------------------------------------------------------------------------------------
+SELECT 
+    p.primer_nombre, 
+    p.primer_apellido, 
+    e.codigo_estudiante, 
+    e.modalidad, 
+    a.nivel_riesgo, 
+    a.causa_ia
+FROM persona p
+JOIN estudiante e ON p.id = e.id_persona
+JOIN alerta_desercion a ON e.id = a.id_estudiante;
+
+-------------------------------------------------------------------------------------------------------
+--Este query genera los números que alimentan las tarjetas de tu Dashboard (Total de Rojos, Amarillos y Verdes). 
+--Demuestra la capacidad analítica del sistema
+
+--------------------------------------------------------------------------------------------------------
+SELECT 
+    nivel_riesgo, 
+    COUNT(*) as total_estudiantes
+FROM alerta_desercion
+GROUP BY nivel_riesgo
+ORDER BY total_estudiantes DESC;
+
+--------------------------------------------------------------------------------------------------------
+--extraer rápidamente una lista de intervención prioritaria (solo los de Riesgo Alto).
+
+--------------------------------------------------------------------------------------------------------
+
+SELECT 
+    p.primer_nombre || ' ' || p.primer_apellido as estudiante,
+    a.causa_ia as diagnostico_ia
+FROM persona p
+JOIN estudiante e ON p.id = e.id_persona
+JOIN alerta_desercion a ON e.id = a.id_estudiante
+WHERE a.nivel_riesgo = 'Alto';
+
+---------------------------------------------------------------------------------------------------------
+--para mostrar la información técnica de los estudiantes (carrera, modalidad, nivel) 
+-- y confirmar que el mapeo con la tabla persona es correcto.
+
+--------------------------------------------------------------------------------------------------------
+SELECT 
+    e.codigo_estudiante, 
+    p.email_institucional, 
+    e.modalidad, 
+    e.nivel_actual
+FROM estudiante e
+JOIN persona p ON e.id_persona = p.id
+LIMIT 10;
+
+-----------------------------------------------------------------------------------------------------------
+--este query para mostrar los textos largos (diagnósticos) que generó Llama 3.3.
+
+-----------------------------------------------------------------------------------------------------------
+
+SELECT 
+    id_estudiante, 
+    nivel_riesgo, 
+    LEFT(causa_ia, 100) || '...' as fragmento_analisis
+FROM alerta_desercion
+WHERE causa_ia IS NOT NULL;
+
+--------------------------------------------------------------------------------------------------------
+--Este query ejecuta una operación de proyección y unión (JOIN) multietapa para la desnormalización temporal de datos. 
+--Su propósito es realizar una unificación de entidades vinculando la tabla de hechos
+
+--------------------------------------------------------------------------------------------------------
+
+SELECT 
+    p.primer_nombre || ' ' || p.primer_apellido AS estudiante,
+    a.nivel_riesgo,
+    a.causa_ia
+FROM alerta_desercion a
+JOIN estudiante e ON a.id_estudiante = e.id
+JOIN persona p ON e.id_persona = p.id
+ORDER BY a.nivel_riesgo ASC;
+
+-----------------------------------------------------------------------------------------------------
+TRUNCATE TABLE alerta_desercion RESTART IDENTITY CASCADE;
+
+-----------------------------------------------------------------------------------------------------
+
+
